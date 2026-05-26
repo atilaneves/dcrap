@@ -1,0 +1,18 @@
+name "dcrap"
+description "CRAP metric evaluator for D projects"
+targetType "executable"
+targetPath "bin"
+mainSourceFile "source/app.d"
+sourcePaths "source"
+dependency "unit-threaded" version="~>2.2"
+
+configuration "application" {
+}
+
+configuration "unittest" {
+    targetType "executable"
+    targetPath "bin"
+    sourcePaths "source" "tests"
+    excludedSourceFiles "source/app.d"
+    dflags "-main"
+}
