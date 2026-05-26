@@ -32,3 +32,14 @@ unittest
 
     summary.coverageFraction.should == 0.0;
 }
+
+@("coverage fraction divides covered lines by executable lines")
+unittest
+{
+    const summary = CoverageSummary(
+        coveredLines: 1,
+        executableLines: 2,
+    );
+
+    summary.coverageFraction.should == 0.5;
+}

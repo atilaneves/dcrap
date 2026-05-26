@@ -18,7 +18,11 @@ public struct CoverageSummary
 
 public double coverageFraction(in CoverageSummary summary) @safe @nogc nothrow pure
 {
-    return 0.0;
+    if (summary.executableLines == 0) {
+        return 0.0;
+    }
+
+    return cast(double) summary.coveredLines / summary.executableLines;
 }
 
 public CoverageSummary coverageSummary(
