@@ -34,3 +34,14 @@ unittest
 
     scoreInput.crapScore.should == 6.0;
 }
+
+@("function score fails threshold only when CRAP score is greater than threshold")
+unittest
+{
+    const threshold = 30.0;
+    const scoreAtThreshold = FunctionScore(crapScore: threshold);
+    const scoreAboveThreshold = FunctionScore(crapScore: threshold + 0.1);
+
+    scoreAtThreshold.failsThreshold(threshold).should == false;
+    scoreAboveThreshold.failsThreshold(threshold).should == true;
+}
