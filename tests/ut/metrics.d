@@ -45,3 +45,35 @@ unittest
     scoreAtThreshold.failsThreshold(threshold).should == false;
     scoreAboveThreshold.failsThreshold(threshold).should == true;
 }
+
+@("function score carries source identity, coverage, complexity, and CRAP")
+unittest
+{
+    const input = FunctionScoreInput(
+        qualifiedName: "sample.covered",
+        filePath: "/project/source/sample.d",
+        lineRange: LineRange(
+            firstLine: 3,
+            lastLine: 6,
+        ),
+        cyclomaticComplexity: 4,
+        coverage: CoverageSummary(
+            coveredLines: 1,
+            executableLines: 2,
+        ),
+    );
+
+    input.scoreFunction.should == FunctionScore(
+        qualifiedName: "sample.covered",
+        filePath: "/project/source/sample.d",
+        lineRange: LineRange(
+            firstLine: 3,
+            lastLine: 6,
+        ),
+        cyclomaticComplexity: 4,
+        coveredLines: 1,
+        executableLines: 2,
+        coverage: 0.5,
+        crapScore: 6.0,
+    );
+}
