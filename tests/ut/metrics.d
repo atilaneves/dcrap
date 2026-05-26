@@ -49,9 +49,15 @@ unittest
 @("function score carries source identity, coverage, complexity, and CRAP")
 unittest
 {
+    import std.path : absolutePath;
+
+    immutable sandbox = Sandbox();
+    sandbox.writeFile("source/sample.d");
+    const filePath = sandbox.inSandboxPath("source/sample.d").absolutePath;
+
     const input = FunctionScoreInput(
         qualifiedName: "sample.covered",
-        filePath: "/project/source/sample.d",
+        filePath: filePath,
         lineRange: LineRange(
             firstLine: 3,
             lastLine: 6,
@@ -65,7 +71,7 @@ unittest
 
     input.scoreFunction.should == FunctionScore(
         qualifiedName: "sample.covered",
-        filePath: "/project/source/sample.d",
+        filePath: filePath,
         lineRange: LineRange(
             firstLine: 3,
             lastLine: 6,
