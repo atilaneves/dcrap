@@ -18,6 +18,8 @@ public string writeDFile(
     in string source,
 )
 {
+    import std.path : absolutePath;
+
     sandbox.writeFile(fileName, source.dedent);
-    return sandbox.inSandboxPath(fileName);
+    return sandbox.inSandboxPath(fileName).absolutePath;
 }

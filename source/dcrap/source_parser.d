@@ -32,26 +32,44 @@ private FunctionRange[] parseFunctionRanges(in string source, in string filePath
         private string filePath;
         private string moduleName;
         private string source;
+        private SourceLineMap lineMap;
         private string[] functionNameStack;
         public FunctionRange[] functionRanges;
 
-        public this(in string filePath, in string moduleName, in string source)
+        public this(
+            in string filePath,
+            in string moduleName,
+            in string source,
+            SourceLineMap lineMap,
+        )
         {
             this.filePath = filePath;
             this.moduleName = moduleName;
             this.source = source;
+            this.lineMap = lineMap;
         }
 
         public override void visit(const FunctionDeclaration declaration)
         {
+            const lastLine = declaration.functionBody.tokens.length == 0
+                ? lineMap.logicalLine(
+                    source.lineAt(declaration.functionBody.endLocation),
+                    declaration.functionBody.endLocation,
+                )
+                : lineMap.logicalLine(
+                    declaration.functionBody.tokens[$ - 1].line,
+                    declaration.functionBody.tokens[$ - 1].index,
+                );
+
             functionRanges ~= FunctionRange(
                 qualifiedName: qualifiedName(declaration.name.text),
                 filePath: filePath,
                 lineRange: LineRange(
-                    firstLine: declaration.name.line,
-                    lastLine: declaration.functionBody.tokens.length == 0
-                        ? source.lineAt(declaration.functionBody.endLocation)
-                        : declaration.functionBody.tokens[$ - 1].line,
+                    firstLine: lineMap.logicalLine(
+                        declaration.name.line,
+                        declaration.name.index,
+                    ),
+                    lastLine: lastLine,
                 ),
             );
 
@@ -84,9 +102,104 @@ private FunctionRange[] parseFunctionRanges(in string source, in string filePath
         .parseModule;
 
     auto visitor = new FunctionRangeVisitor(filePath, parsedModule.moduleName,
-        source);
+        source, tokens.sourceLineMap);
     parsedModule.accept(visitor);
     return visitor.functionRanges;
+}
+
+private struct SourceLineMap
+{
+    private LineDirective[] directives;
+
+    public size_t logicalLine(in size_t physicalLine, in size_t index) const
+    {
+        foreach_reverse (directive; directives) {
+            if (directive.index < index
+                && physicalLine >= directive.physicalNextLine)
+            {
+                return directive.logicalNextLine + physicalLine
+                    - directive.physicalNextLine;
+            }
+        }
+
+        return physicalLine;
+    }
+}
+
+private struct LineDirective
+{
+    public size_t index;
+    public size_t physicalNextLine;
+    public size_t logicalNextLine;
+}
+
+private SourceLineMap sourceLineMap(Tokens)(Tokens tokens)
+{
+    SourceLineMap lineMap;
+    foreach (token; tokens) {
+        foreach (trivia; token.leadingTrivia) {
+            lineMap.addLineDirective(trivia);
+        }
+        foreach (trivia; token.trailingTrivia) {
+            lineMap.addLineDirective(trivia);
+        }
+    }
+
+    return lineMap;
+}
+
+private void addLineDirective(Trivia)(ref SourceLineMap lineMap, in Trivia trivia)
+{
+    import dparse.lexer : tok;
+
+    if (trivia.type != tok!"specialTokenSequence") {
+        return;
+    }
+
+    const logicalNextLine = trivia.text.lineDirectiveLogicalLine;
+    if (logicalNextLine == 0) {
+        return;
+    }
+
+    lineMap.directives ~= LineDirective(
+        index: trivia.index,
+        physicalNextLine: trivia.line + 1,
+        logicalNextLine: logicalNextLine,
+    );
+}
+
+private size_t lineDirectiveLogicalLine(in string directive)
+    @safe @nogc nothrow pure
+{
+    enum prefix = "#line";
+    if (directive.length < prefix.length
+        || directive[0 .. prefix.length] != prefix)
+    {
+        return 0;
+    }
+
+    size_t index = prefix.length;
+    while (index < directive.length && directive[index].isHorizontalSpace) {
+        index++;
+    }
+
+    size_t line;
+    while (index < directive.length && directive[index].isDigit) {
+        line = line * 10 + directive[index] - '0';
+        index++;
+    }
+
+    return line;
+}
+
+private bool isHorizontalSpace(in char value) @safe @nogc nothrow pure
+{
+    return value == ' ' || value == '\t';
+}
+
+private bool isDigit(in char value) @safe @nogc nothrow pure
+{
+    return value >= '0' && value <= '9';
 }
 
 private string moduleName(in imported!"dparse.ast".Module parsedModule)
