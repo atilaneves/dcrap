@@ -30,13 +30,13 @@ Implemented:
   coverage, and CRAP score.
 - `libdparse`-based discovery of module-level functions and named nested
   functions, including line directive handling.
-- Analyze-only row formatting for table-style audit output.
+- Analyze-only row formatting for audit output experiments.
 - Deterministic JSON serialization for analyze-only scored function rows.
 
 In progress:
 
-- Machine-readable analyze-only output. Deterministic JSON serialization is in
-  place; command-line `--json` flag wiring remains separate.
+- Gate-oriented analyze-only CLI behavior. Deterministic JSON serialization is
+  in place; the next slice is threshold parsing and nonzero failure exit.
 
 Still pending:
 
@@ -44,7 +44,6 @@ Still pending:
 - Method, constructor, destructor, overload, and filtering golden tests.
 - Source-root and coverage-input discovery for analyze-only CLI mode.
 - Convenience coverage-running mode.
-- CLI threshold handling and nonzero failure exit.
 
 ## Key Changes
 
@@ -83,7 +82,7 @@ Still pending:
 - Provide analyze-only mode:
   - input source roots
   - input coverage directory or `.lst` files
-  - output table by default
+  - deterministic JSON output by default
 - Provide convenience mode to run coverage:
   - run `dub test` with DMD/LDC coverage settings
   - write coverage output to a controlled directory using `DRT_COVOPT`
@@ -97,7 +96,6 @@ Still pending:
   - total executable lines
   - coverage percent
   - CRAP score
-- Add `--json` for machine-readable output.
 - Exit nonzero when any scored function exceeds `--threshold`, default `30`.
 - Identify functions by qualified name plus file and line range.
 
@@ -105,6 +103,7 @@ Still pending:
 
 - Use `unit-threaded` for all unit and integration-style tests.
 - Run tests through DUB.
+- Add or change one behavior test at a time during TDD.
 - Unit test CRAP formula edge cases:
   - `100%` coverage returns `CC`
   - `0%` coverage returns `CC^2 + CC`
@@ -112,6 +111,12 @@ Still pending:
 - Unit test `.lst` parser with covered, uncovered, and non-executable lines.
 - Unit test function-range coverage aggregation.
 - Unit test missing coverage maps to `0%`.
+- Unit test analyze-only CLI threshold parsing:
+  - default threshold is `30`
+  - `--threshold` overrides the default
+- Unit test analyze-only CLI gate decisions:
+  - returns success when all CRAP scores are at or below threshold
+  - returns failure when any CRAP score is greater than threshold
 - Golden tests for representative D source:
   - plain functions
   - methods
