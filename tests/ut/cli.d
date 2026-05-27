@@ -10,3 +10,12 @@ unittest {
 
     options.threshold.should == 30.0;
 }
+
+@("analyze-only options allow overriding the CRAP failure threshold")
+unittest {
+    import dcrap.cli : parseAnalyzeOnlyOptions;
+
+    const options = ["dcrap", "--threshold", "12.5"].parseAnalyzeOnlyOptions;
+
+    options.threshold.should == 12.5;
+}
