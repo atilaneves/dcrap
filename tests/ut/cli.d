@@ -65,3 +65,12 @@ unittest {
 
     scores.analyzeOnlyExitCode(30.0).should == 1;
 }
+
+@("analyze run throws when a CRAP score exceeds threshold")
+unittest {
+    import app : run;
+
+    run(["dcrap", "--threshold", "0"]).shouldThrowWithMessage(
+        "CRAP threshold exceeded",
+    );
+}

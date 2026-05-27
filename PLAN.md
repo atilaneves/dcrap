@@ -32,11 +32,11 @@ Implemented:
   functions, including line directive handling.
 - Analyze-only row formatting for audit output experiments.
 - Deterministic JSON serialization for analyze-only scored function rows.
+- Analyze-only CLI threshold parsing and nonzero gate failure exit.
 
 In progress:
 
-- Gate-oriented analyze-only CLI behavior. Deterministic JSON serialization is
-  in place; the next slice is threshold parsing and nonzero failure exit.
+- Gate-oriented analyze-only CLI behavior.
 
 Still pending:
 
