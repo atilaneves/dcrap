@@ -5,6 +5,7 @@ targetPath "bin"
 mainSourceFile "source/app.d"
 sourcePaths "source"
 dependency "unit-threaded" version="~>2.2"
+dependency "libdparse" version="~>0.25.0"
 
 configuration "application" {
 }

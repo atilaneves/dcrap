@@ -1,6 +1,7 @@
 {
 	"fileVersion": 1,
 	"versions": {
+		"libdparse": "0.25.1",
 		"unit-threaded": "2.2.3"
 	}
 }
