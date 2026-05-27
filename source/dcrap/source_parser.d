@@ -32,6 +32,7 @@ private FunctionRange[] parseFunctionRanges(in string source, in string filePath
         private string filePath;
         private string moduleName;
         private string source;
+        private string[] functionNameStack;
         public FunctionRange[] functionRanges;
 
         public this(in string filePath, in string moduleName, in string source)
@@ -43,16 +44,35 @@ private FunctionRange[] parseFunctionRanges(in string source, in string filePath
 
         public override void visit(const FunctionDeclaration declaration)
         {
-            import std.conv : text;
-
             functionRanges ~= FunctionRange(
-                qualifiedName: text(moduleName, ".", declaration.name.text),
+                qualifiedName: qualifiedName(declaration.name.text),
                 filePath: filePath,
                 lineRange: LineRange(
                     firstLine: declaration.name.line,
-                    lastLine: source.lineAt(declaration.functionBody.endLocation),
+                    lastLine: declaration.functionBody.tokens.length == 0
+                        ? source.lineAt(declaration.functionBody.endLocation)
+                        : declaration.functionBody.tokens[$ - 1].line,
                 ),
             );
+
+            functionNameStack ~= declaration.name.text;
+            scope (exit) {
+                functionNameStack.length = functionNameStack.length - 1;
+            }
+            declaration.functionBody.accept(this);
+        }
+
+        private string qualifiedName(in string functionName)
+        {
+            import std.array : join;
+            import std.conv : text;
+
+            if (functionNameStack.length == 0) {
+                return text(moduleName, ".", functionName);
+            }
+
+            return text(moduleName, ".", functionNameStack.join("."), ".",
+                functionName);
         }
     }
 
