@@ -25,6 +25,22 @@ public AnalyzeOnlyOptions parseAnalyzeOnlyOptions(
     );
 }
 
+public int analyzeOnlyExitCode(
+    in imported!"dcrap.metrics".FunctionScore[] scores,
+    in double threshold,
+) @safe @nogc nothrow pure
+{
+    import dcrap.metrics : failsThreshold;
+
+    foreach (const score; scores) {
+        if (score.failsThreshold(threshold)) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 private double parseThresholdValue(
     in string value,
     in double fallback,
