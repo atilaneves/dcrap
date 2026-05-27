@@ -39,7 +39,9 @@ in this repo unless instructed otherwise.
 Strict TDD: failing test → dumbest passing code → green suite. No refactoring
 until all tests pass. Ask for feedback after the refactoring step.
 
-Stop and wait for approval before adding or modifying any test.
+Before adding or modifying any test, present the concrete proposed test code as
+readable syntax-highlighted code, not a raw diff unless explicitly requested,
+and wait for approval.
 
 Test behaviours, not implementations.
 
