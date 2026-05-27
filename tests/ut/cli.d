@@ -42,3 +42,26 @@ unittest {
 
     scores.analyzeOnlyExitCode(30.0).should == 0;
 }
+
+@("analyze-only gate fails when any CRAP score exceeds threshold")
+unittest {
+    import dcrap.cli : analyzeOnlyExitCode;
+
+    const scores = [
+        FunctionScore(
+            qualifiedName: "sample.risky",
+            filePath: "/project/source/sample.d",
+            lineRange: LineRange(
+                firstLine: 1,
+                lastLine: 3,
+            ),
+            cyclomaticComplexity: 6,
+            coveredLines: 0,
+            executableLines: 1,
+            coverage: 0.0,
+            crapScore: 30.1,
+        ),
+    ];
+
+    scores.analyzeOnlyExitCode(30.0).should == 1;
+}
