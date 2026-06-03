@@ -81,9 +81,6 @@ Test behaviours, not implementations.
 
 Run `dub test` after every editing session.
 
-Run `benchmarks/run.sh` before creating a PR to make sure the
-benchmarks still work.
-
 No per-test process spawning, network access, or repeated dependency resolution
 unless explicitly approved.
 
