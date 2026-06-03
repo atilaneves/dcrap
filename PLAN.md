@@ -36,7 +36,6 @@ Implemented:
 
 In progress:
 
-- Gate-oriented analyze-only CLI behavior.
 - End-to-end source root and coverage input wiring for analyze-only mode.
 
 Still pending:
